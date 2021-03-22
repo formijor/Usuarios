@@ -1,5 +1,5 @@
 '''
-Created on 21 mar. 2021
+Created on 22 mar. 2021
 
 @author: Jorge
 '''
@@ -7,10 +7,12 @@ Created on 21 mar. 2021
 import sqlite3
 
 
-class DatosSQL():
+class ControlDB():
     def __init__(self, mediador):
         self.connection_string = ''
         self.mediador = mediador
+        self.query = Query()
+        self.connectar('Usuarios')
         
     def get_datasource(self):
         datasource = ''
@@ -22,31 +24,49 @@ class DatosSQL():
     
     def cerrar_conexion(self):
         self.conn.close()
-        
+    
     def ejecutar_query(self, query):
         cursor = self.conn.execute(query)
         self.conn.commit()
         return cursor.fetchall()
+    
+    '''def get_usuario_id(self, email):
+        query = self.query.buscar_usuario_por_email(email)
+        return self.ejecutar_query(query)'''
+    
+    def get_datos_usuario(self, email):
+        query = self.query.buscar_usuario_por_email(email)
+        return self.ejecutar_query(query)
+    
+    def registrar_usuario(self, usuario_datos):
+        query = self.query.insertar_usuario(usuario_datos, 'usuario')
+        self.ejecutar_query(query)
+        
+    def get_lista_usuarios_registrados(self):
+        query = self.query.lista_usuarios()
+        return self.ejecutar_query(query)
+        
+    def truncar_tabla_usuarios(self):
+        query = self.query.truncar_tabla('Usuario')
+        self.ejecutar_query(query)
     
     def enviar_mensaje(self):
         self.mediador.enviar_mensaje('1', 'Hola')
     
     def imprimir_mensaje(self, mensaje):
         print ('Soy Datos y me mandaron a decir: ' + mensaje)
-    
-class Datasource():
-    def __init__(self):
-        self.datasource = ''
         
-    def get_datasource(self):
-        return 'connexion="Usuarios"'
-
+    def crear_db(self):
+        query = self.query.crear_tabla_usuario()
+        self.ejecutar_query(query)
+        
+        
 class Query():
     def __init__(self):
         pass
     
     def insertar_usuario(self, datos, tabla):
-        query = 'INSERT INTO ' + tabla + ' VALUES ('
+        query = 'INSERT INTO ' + tabla + ' VALUES (Null,'
         for dato in datos:
             query = query + dato + ','
         query = query[:-1] + ')'
@@ -56,8 +76,12 @@ class Query():
         query = 'SELECT * FROM Usuario WHERE nombre = ' + nombre
         return query
     
-    def buscar_usuario_por_email(self, nombre):
-        query = 'SELECT * FROM Usuario WHERE email = ' + nombre
+    def buscar_usuario_por_email(self, email):
+        query = 'SELECT * FROM Usuario WHERE email = ' + email
+        return query
+    
+    def truncar_tabla(self, tabla):
+        query = 'DELETE FROM ' + tabla
         return query
     
     def lista_usuarios(self):
@@ -67,17 +91,13 @@ class Query():
     def lista_ciudad(self):
         query = 'SELECT * FROM Ciudad'
         return query
-        
-class UsuariosDatabase():
-    def __init__(self):
-        pass
     
     def crear_tabla_usuario(self):
         query = '''CREATE TABLE Usuario (
-    id_usuario integer PRIMARY KEY,
+        id_usuario integer PRIMARY KEY,
        nombre text NOT NULL,
        clave text NOT NULL,
-    email text NOT NULL UNIQUE)'''
+        email text NOT NULL UNIQUE)'''
         return query
     
     def crear_tabla_ciudad(self):
@@ -87,31 +107,3 @@ class UsuariosDatabase():
         nombre text NOT NULL
         )'''
         return query
-        
-    
-source = Datasource()
-datos = DatosSQL()
-query = Query()
-usuarios = UsuariosDatabase()
-if __name__ == "__main__":
-    datasource = 'Usuarios'#source.get_datasource()
-    datos.connectar(datasource)
-    #datos.ejecutar_query('DROP TABLE Usuario')
-    datos.ejecutar_query(usuarios.crear_tabla_usuario())
-    #datos.ejecutar_query('DROP TABLE Usuario')
-    '''
-    datos.ejecutar_query(usuarios.crear_tabla_ciudad())
-    try:
-        datos.ejecutar_query(query.insertar_usuario(('Null', '"Carolina Montoya"','"lalala"','"scmontoya1@gmail.com"'), '"Usuario"'))
-        datos.ejecutar_query(query.insertar_usuario(('Null', '"Jorge Formigo"','"lalala"','"Formijor@gmail.com"'), '"Usuario"'))
-    except:
-        print ('error')
-    resultado = datos.ejecutar_query(query.buscar_usuario_por_nombre('"Jorge Formigo"'))
-    print(resultado)
-    resultado = datos.ejecutar_query(query.lista_usuarios())
-    print(resultado)'''
-    datos.cerrar_conexion()
-    
-    
-    
-    
