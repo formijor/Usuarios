@@ -30,9 +30,15 @@ class ControlDB():
         self.conn.commit()
         return cursor.fetchall()
     
-    '''def get_usuario_id(self, email):
+    def validar_usuario(self, email, clave):
         query = self.query.buscar_usuario_por_email(email)
-        return self.ejecutar_query(query)'''
+        resultado = self.ejecutar_query(query)
+
+        if '"'+resultado[0][2]+'"' == clave: #Modificar esta aberracion
+            print('IGUAL')
+            return True
+        else:
+            return False
     
     def get_datos_usuario(self, email):
         query = self.query.buscar_usuario_por_email(email)

@@ -12,10 +12,18 @@ class Mediador():
         self.usuarios = {}
         self.db_usuarios = DBusuarios.ControlDB(self)
         
-    def loguear_usuario(self, email): #modificar para que use un solo campo unico (DNI o usuario)
-        datos = self.db_usuarios.get_datos_usuario(email)[0]
-        usuario = Usuarios.Usuario(self, datos)
-        self.usuarios[str(usuario.get_id())]= usuario
+    def loguear_usuario(self, email, clave): #modificar para que use un solo campo unico (DNI o usuario)
+        if self.validar_usuario(email, clave):
+            datos = self.db_usuarios.get_datos_usuario(email)[0]
+            usuario = Usuarios.Usuario(self, datos)
+            self.usuarios[str(usuario.get_id())]= usuario
+            return True
+        else:
+            return False
+    
+    def validar_usuario(self, email, clave):
+        acceso = self.db_usuarios.validar_usuario(email, clave)
+        return acceso
     
     def get_nombres_usuarios_logueados(self):
         lista_nombres = []
@@ -49,7 +57,9 @@ class Mediador():
     def cerrar_conexion(self):
         self.db_usuarios.cerrar_conexion()
     
-    
+def test_loguear_usuario():
+    mediador.loguear_usuario("'formijor@gmail.com'", '"lalala1"')
+    mediador.loguear_usuario("'scmontoya1@gmail.com'", '"lalala2"')   
     
 if __name__ == "__main__":
     mediador = Mediador()
@@ -67,8 +77,9 @@ if __name__ == "__main__":
     #print (mediador.get_lista_usuarios_registrados())
     
     print ('-----> Logueando Usuarios \n')
-    mediador.loguear_usuario("'formijor@gmail.com'")
-    mediador.loguear_usuario("'scmontoya1@gmail.com'")
+    #mediador.loguear_usuario("'formijor@gmail.com'")
+    #ediador.loguear_usuario("'scmontoya1@gmail.com'")
+    test_loguear_usuario()
     
     print ('===== Usuarios Logueados =====')
     print ('Usuarios Logueados: ', mediador.get_lista_usuarios_logueados())
@@ -78,4 +89,7 @@ if __name__ == "__main__":
     mediador.cerrar_conexion()
     #print (mediador.get_nombres_usuarios_logueados())
     #print (mediador.get_lista_usuarios_logueados())
+    
+
+    
         
